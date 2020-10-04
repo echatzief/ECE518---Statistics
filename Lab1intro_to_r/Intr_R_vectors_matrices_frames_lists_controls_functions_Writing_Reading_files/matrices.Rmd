@@ -1,0 +1,179 @@
+---
+title: 'Introductionto R: Matrices'
+output:
+  pdf_document: default
+  html_notebook: default
+---
+
+In R, a matrix is a 2 dimensional data structure that contains atomic elements of the same type. Just like a vector, a matrix can hold numeric values, logical values, characters or other atomic data types. A matrix consists 2 or more rows and 2 or more columns. When talking about matrices, the letter m refers to number of rows and n refer to the number of columns.
+
+# Matrix Construction
+To construct a matrix in R, you can use the matrix() function which takes several arguments:
+```{r}
+X <- matrix(data = c(1,2,3,4,5,6),  # a vector used to construct the matrix
+            nrow = 2,               # number of rows in the matrix
+            ncol = 3,               # number of columns in the matrix
+            byrow = FALSE)          # fill the matrix by rows or columns?
+
+print(X)
+```
+Matrices are typically assigned to capital lettered variables to distinguish them from vectors.
+You can add to a matrix you've already constructed with the rbind() and cbind() functions. rbind takes a sequence of vectors, matrices or data frames (we'll cover those later) as arguments and combines them by rows, while cbind() combines sequences of data objects by columns:
+```{r}
+Y <- matrix( seq(10,15,1), 3, 2)  # Create a new 3x2 matrix
+print (Y)
+X <- rbind(X, c(7,8,9) )  # Adds the vector c(7,8,9) as a new row
+print(X)
+XY <- cbind(X,  Y)  # Add the new matrix to X by column
+print(XY)
+```
+*Note: the arguments to rbind() should have the same number of columns and the arguments to cbind() should have the same number of rows.
+Since cbind() and rbind() work on vectors, you can use them to construct matrices from vectors on a row by row, or column by column basis:
+```{r}
+Z <- rbind(c(1,2,3), c(4,5,6), c(7,8,9))
+print(Z)
+```
+
+You can turn a matrix's rows into columns and columns into rows using the transpose function t():
+```{r}
+X <- t(X)
+print(X)
+```
+
+Transpose essentially flips a matrix along the main diagonal.
+You can also convert a matrix into a vector using the c() function:
+```{r}
+c(X)  # Convert a matrix into a vector by column
+
+# If you want to convert a matrix to vector by row, take the transpose first:
+c(t(X))
+```
+## Matrix Indexing
+
+Similar to vectors, you can access the elements inside a matrix with indexing. You may have noticed that when we printed matrices above, the rows and columns were labeled with values in square brackets. Those labels are the index values of the rows and columns. Since matrices have two dimensions, they have two indexes, a row index and a column index, which are separated by a comma. You can use indices to grab specific values, rows or columns in a matrix:
+```{r}
+X[3,2]   # Get the value at row 3 column 2
+
+# Leave the row or column index blank to take the entire row or column:
+
+X[3, ]   # Get row 3
+
+X[ ,2]   # Get column 2
+```
+You can also take slices of rows and columns, just like you can with vectors:
+```{r}
+print(X[1:2, 2:3])  # Get data points in rows 4 and 5 and columns 2 and 3
+```
+
+All the vector indexing operations discussed last time work for matrices:
+```{r}
+print( X[c(1,2,3), c(1,3)] ) # Vector indexing
+```
+```{r}
+print( X[ -2, -2] ) # Remove row 2 and remove column 2
+```
+```{r}
+X_logical <- (X %% 2 == 0)   # Create a logical matrix identifying even numbers
+print(X_logical)
+```
+
+```{r}
+X[X_logical]      # Use the logical matrix as an index to get even values in X
+```
+
+```{r}
+X[X %in% c(2,6,8,9,10,15,100)]   # Get matrix values contained in a vector
+```
+
+A matrix can also have named dimensions. You can assign dimension names when creating a matrix by passing a list of two vectors the dimnames argument:
+```{r}
+Z <- matrix(c(1,2,3,4), 2, 2, dimnames = list( c("r1","r2"), c("c1","c2")) )
+print(Z)
+```
+You can also create or reassign dimnames after creating a matrix:
+```{r}
+dimnames(Z) <- list( c("first_r","second_r"), c("first_c","second_c")) 
+
+print(Z)
+```
+When dimensions are named, you can index the matrix using the dimension names or the normal numeric indexes:
+```{r}
+Z[2,2]                    # Get the value at 2,2 with numeric indexing
+Z["second_r","second_c"]  # Get the value at 2,2 with named dimensions
+```
+# Matrix Operations
+
+Matrices in R offer many of the same conveniences as vectors. For instance, you can perform element-wise math operations on matrices of same dimensions by using the standard math symbols:
+
+```{r}
+X <- Y <- matrix(c(1,2,-1,1,1,2,1,2,3),3,3)  #Make two new identical matrices
+print(X)
+print(Y)
+
+# You can use the dim() function to check matrix dimensions:
+dim(X)
+dim(Y)
+```
+```{r}
+print(X + Y) # Element-wise addition
+```
+
+```{r}
+print(X * Y) # Element-wise multiplication
+```
+
+```{r}
+print(X / Y) # Element-wise division
+```
+
+For true matrix multiplication, use the %*% operator:
+```{r}
+print( X %*% Y )
+```
+
+Here are a few other useful matrix operations:
+```{r}
+diag(X)  # Get elements on the main diagonal of a matrix
+```
+```{r}
+solve(X)  # Get the inverse of a square matrix
+```
+
+```{r}
+eigen(X) # Get the eigenvectors and eigenvalues of a matrix
+```
+```{r}
+rowSums(X)    # Get the sums of the rows
+
+colSums(X)    # Get the sums of the columns
+
+rowMeans(X)   # Get the means of the rows
+
+colMeans(X)   #Get the means of the columns
+```
+```{r}
+sum(X)  # Sum all the values in X
+```
+```{r}
+min(X)  # Get the min value in X
+```
+```{r}
+max(X)  # Get the max value in X
+```
+
+```{r}
+mean(X) # Get the mean of all the values in X
+```
+
+*Note: sum, min max and mean also work on vectors
+
+Any time you want to perform a matrix operation, there's a good chance R has a function that does just what you need built in or available in a package. Google is your friend.
+R also contains an array data structure that stores elements of the same atomic type in an arbitrary number of dimensions. An array is just a vector stored with an extra attribute "dim" that specifies its dimensions:
+```{r}
+A <- array(1:64, dim = c(4,4,4))    #create a 4 x 4 x 4 array
+
+dim(A)    #Check the dimensions of the array
+print(A)
+```
+Arrays generally support the same types of indexing and vector operations as vectors and matrices, just with different numbers of dimensions. Arrays are uncommon so we won't study them any further.
+Up till now, all the data structures we've covered hold values of the same atomic type. Real world data comes in all shapes and forms so the data structures we know aren't sufficient to tackle most real data sets. 

@@ -1,0 +1,210 @@
+---
+title: "R Introduction - Frames"
+output:
+  pdf_document: default
+  html_notebook: default
+---
+
+Structured data is usually organized in tables that have a certain number of rows and columns like an Excel spreadsheet or relational database table. R data frames are a type of data structure designed to hold such tabular data. A data frame consists of a number of rows and columns with each column representing some variable or feature of the data and each row representing a record, case or data point. A data frame is similar to a matrix in that it is a 2-dimensional data structure but unlike a matrix, different columns can hold data of different types. A data frame is actually just a list under the hood--a list where each object(column) is a vector with the same number of items.
+
+# Creating Data Frames
+
+You can create a new data frame by passing vectors of the same length to the data.frame() function. The vectors you pass in become the columns of the data frame. The data you pass in can be named or unnamed:
+```{r}
+a <- c(1,2,3,4,5)                    # Create some vectors
+b <- c("Life","Is","Study!","Let's","Learn")
+c <- c(TRUE,FALSE,TRUE,TRUE,FALSE)
+
+my_frame <- data.frame(a,b,c)       # Create a new data frame
+
+my_frame
+```
+
+
+
+Since we did not supply column names, the columns took the names of the variables used to create the data frame. We could have assigned column names when creating the data frame like this:
+```{r}
+my_frame <- data.frame(numeric = a, character = b, logical = c)
+
+my_frame
+```
+
+
+You can check and reassign column names using the colnames() or names() functions:
+```{r}
+colnames(my_frame)
+
+names(my_frame)
+```
+```{r}
+colnames(my_frame) <- c("c1","c2","c3")
+
+colnames(my_frame)
+```
+
+Data frames also support named rows. You can create row names when creating a data frame by including the row.names argument and setting it equal to a character vector to be used for row names:
+```{r}
+my_frame <- data.frame(numeric = a, character = b, logical = c,
+                      row.names = c("r1","r2","r3","r4","r5"))
+
+my_frame
+```
+
+
+You can check and alter row names after creating a data frame using the rownames() function:
+```{r}
+rownames(my_frame)
+```
+```{r}
+rownames(my_frame) <- 1:5
+
+rownames(my_frame)
+```
+
+Another way to create a data frame is to coerce an existing matrix into data frame using the as.data.frame() function:
+```{r}
+X <- matrix(seq(10,1000,10),10,10)    #Create a 10 x 10 matrix
+
+X_frame <- as.data.frame(X)           #Turn the matrix into a data frame
+
+X_frame
+```
+
+
+
+
+In practice, most of the data frames you work with probably won't be data frames you create yourself. When you load data into R for analysis from a tabular data source like an Excel file or comma separated values file (CSV), it is usually structured as data frame. We will cover reading data into R in an upcoming lesson.
+For the rest of this lesson we'll work with the mtcars data set, a small set of car-related data built into R.
+```{r}
+cars <- mtcars        # Load the mtcars data 
+
+print(cars)
+```
+
+
+# Summarizing Data Frames
+
+When you load new into R, it is a good idea to explore the data to get a sense of the variables and values it contains before moving on to any kind of analysis. Real world data is often very messy and cluttered with things like oddly formatted values and missing (NA) values. Cleaning data to get it into a form that you can work with to perform analysis--often called data munging or data wrangling--can be of the most time intensive tasks necessary to work with data. Data exploration and summaries help determine out what, if anything, needs to be cleaned.
+Data frames support many of the summary functions that apply to matrices and lists. The summary() function is perhaps the most useful as it gives summary statistics for each variable in the data frame:
+```{r}
+summary(cars)
+```
+
+ 
+
+The str() function provides a structural overview of a data frame including the number of observations and variables:
+```{r}
+str(cars)
+```
+
+
+*Note: the environment pane in the upper right corner of RStudio also provides useful summary information for data frames.
+If a data frame is large, you won't want to try to print the entire frame to the screen. You can look at a few rows at the beginning or end of a data frame using the head() and tail() functions respectively:
+```{r}
+head(cars, 5)     # Look at the first 5 rows of the data frame
+
+tail(cars, 5)     # Look at the last 5 rows of the data frame
+```
+
+Data frames support a few other basic summary operations:
+```{r}
+dim(cars)      # Get the dimensions of the data frame
+```
+```{r}
+nrow(cars)
+```
+```{r}
+
+ncol(cars)     # Get the number of columns
+```
+
+Data Frame Indexing
+
+Since data frame are lists where each list object is a column, they support all indexing operations that apply to lists:
+```{r}
+head( mtcars[6]  )      # Single brackets take column slices 
+
+typeof( mtcars[6] )     # And return a new data frame
+```
+```{r}
+head( mtcars[[6]]  )    # Double brackets get the actual object at the index
+
+typeof( mtcars[[6]]  )
+```
+```{r}
+head( mtcars[["wt"]]  )  # Column name notation in double brackets works
+
+head( mtcars$wt  )       # As does the $ notation
+```
+
+
+Data frames also support matrix-like indexing by using a single square bracket with a comma separating the index value for the row and column. Matrix indexing allows you get values by row or specific values within the data frame:
+```{r}
+cars[2,6]   # Get the value at row 2 column 6
+```
+```{r}
+cars[2, ]   # Get the second row
+```
+```{r}
+cars[ ,6]   # Get the 6th column
+```
+```{r}
+cars["Mazda RX4", ]   # Get a row by using its name
+```
+
+```{r}
+cars[ ,"mpg"]   # Get a column by using its name
+```
+
+
+All of the indexing methods shown in previous lessons still apply, even logical indexing:
+```{r}
+cars[(cars$mpg > 25), ]   # Get rows where mpg is greater than 25
+```
+
+
+Instead of logical indexing, you can also use the subset() function to create data frame subsets based on logical statements. subset() takes the data frame as the first argument and then a logical statement as the second argument create a subset:
+```{r}
+subset(cars, (mpg > 20) & (hp > 70))   # Subset with over 20 mpg and 70 horsepower
+```
+
+The matrix functions cbind() and rbind() we covered  work on data frames, providing an easy way to combine two data frames with the same number of rows or columns.
+You can also delete columns in a data frame by assigning them a value of NULL:
+```{r}
+cars$vs <- NULL     # Drop the column "vs"
+
+cars$carb <- NULL   # Drop the column "carb"
+subset(cars, (mpg > 20) & (hp > 70))
+```
+
+You cannot drop rows by assigning them a value of NULL due to the way data frames are stored as lists of columns. If you want to drop rows, you can use matrix-style subsetting with the -operator:
+```{r}
+cars <- cars[-c(1, 3), ]    # Drop rows 1 and 3
+
+head( cars )                # Note Mazda RX4 and Datsun 710 have been removed
+```
+
+
+Data frames are one of the main reasons R is a good tool for working with data. Data in many common formats translate directly into R data frames and they are easy to summarize and subset.
+
+Before we learn how to read data into R, there's one more data structure we need to discuss. Earlier in this lesson we created a data frame called my_frame with a column name "character":
+```{r}
+my_frame
+```
+
+
+
+If we check the type of column "character", we have a surprise in store:
+```{r}
+typeof( my_frame$character )
+```
+
+
+How can a column that appears to hold characters be of type integer? It turns out that when you create a data frame, all character vectors in the data frame are converted into a special data structure called a factor by default. You can suppress this behavior by including the argument "stringsAsFactors = FALSE" when creating a data frame:
+```{r}
+my_frame <- data.frame(numeric = a, character = b, logical = c, 
+                       stringsAsFactors = FALSE)
+
+typeof( my_frame$character )
+```
+

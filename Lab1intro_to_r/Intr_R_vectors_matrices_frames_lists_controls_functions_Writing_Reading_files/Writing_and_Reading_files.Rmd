@@ -1,0 +1,257 @@
+---
+title: 'Introduction to R: Writing and Reading files'
+output:
+  pdf_document: default
+  html_notebook: default
+---
+
+Reading data into your R environment is the first step in conducting data analysis. Data comes in many different forms and although R is equipped to deal with most data formats, this lesson will focus on reading common data formats like comma separated values files (CSV) and Microsoft Excel files.
+
+# R Working Directory and File Paths
+
+Before we can jump in and starting loading data, we need to learn a little bit about R's working directory and file paths. When you run R, it starts in a default location in your computer's file system called the working directory. You can check your working directory with the getwd() function:
+```{r}
+getwd()                                 # Get the current working directory
+```
+
+
+The working directory acts as your starting point for accessing other files on your computer. To load data into R from your hard disk, you either need to put the data file in your working directory, change your working directory to the folder containing the data or supply the data's file path to the data reading function.
+You can change your working directory by supplying a new file path in quotes to the setwd() function:
+```{r}
+setwd("C:/Users/elias/Documents")         # Set a new working directory
+
+getwd()                                # Check the working directory again
+```
+
+
+*Note: you can use forward slashes for your file path even in Windows which normally uses backslashes. If you want to use backslashes for file paths in Windows you should use double backslashes (\\)
+Instead of worrying about slashes in filepaths, you can have R construct file paths for you using the file.path() function. It takes a comma separated sequence of character strings and then uses them to construct a file path string for you:
+```{r}
+my_path <- file.path("C:","Users","elias","","Documents")  # Construct path
+
+print (my_path )                # Check the path
+
+setwd(my_path)                  # Set the working directory to the path
+
+getwd()                         # Check the working directory again
+```
+
+
+
+In RStudio you can also change the working directory under the "Session" dropdown menu. Under session select "Set working directory", "Choose Directory", navigate to the folder you want to set as your working directory and click "Select folder."
+
+You can list the files and folders in the current working directory using the list.files() function:
+```{r}
+list.files()       # A list of files and folders in my Documents
+```
+
+
+# Read CSV and TSV Files
+
+Data is commonly stored in simple text files consisting of values delimited (separated) by a special character. For instance, CSV files use commas as the delimiter and tab separated value files (TSV) use tabs as the delimiter.
+You can use the read.csv() function to read CSV files into R:
+```{r}
+draft <- read.csv(file ='C:\\Users\\elias\\Downloads\\risk_factors_cervical_cancer.csv',      # Path to the file
+                  stringsAsFactors = FALSE)   # Encode characters as factors?
+
+print(head(draft,15))
+```
+
+
+Data loaded into R via read.csv() becomes data frame.
+To load tab separated values, include the sep argument and set it to the tab character "\t":
+```{r}
+draft2 <- read.csv(file="C:\\Users\\elias\\Downloads\\risk_factors_cervical_cancer.csv",   # Path to the TSV file
+          sep = "\t",                      # Use tabs as the delimiting character
+          stringsAsFactors = FALSE)
+
+print(head(draft2,15))
+```
+
+
+The read.csv() function is an extension of a more general data reading function called read.table(). read.csv() just sets a few arguments of read.table() to values suitable for reading CSV and TSV files. The read.table() function has numerous additional arguments that have various effects on reading data; there are too many arguments to cover them all in detail here but you can always get more information by checking the function documents with ?read.table or help(read.table).
+
+# Read Excel Files
+
+Microsoft Excel is a ubiquitous enterprise spreadsheet program that stores data in its own format with the extension .xls or .xlsx.
+One simple way to read Excel data into R is to open an Excel workbook using Excel, save the data in CSV format or as a tab-delimited text file and then use the read.csv() function to load the data into R.
+
+The readxl package makes it easy to get data out of Excel and into R. Compared to many of the existing packages (e.g. gdata, xlsx, xlsReadWrite) readxl has no external dependencies, so it's easy to install and use on all operating systems. It is designed to work with tabular data.
+
+readxl supports both the legacy .xls format and the modern xml-based .xlsx format. The libxls C library is used to support .xls, which abstracts away many of the complexities of the underlying binary format. To parse .xlsx, we use the RapidXML C++ library.
+
+# Installation
+
+The easiest way to install the latest released version from CRAN is to install the whole tidyverse.
+
+install.packages("tidyverse")
+
+NOTE: you will still need to load readxl explicitly, because it is not a core tidyverse package loaded via library(tidyverse).
+
+Alternatively, install just readxl from CRAN:
+
+install.packages("readxl")
+
+Or install the development version from GitHub:
+
+install.packages("devtools")
+devtools::install_github("tidyverse/readxl")  
+
+# Usage
+
+library(readxl)
+
+readxl includes several example files, which we use throughout the documentation. Use the helper readxl_example() with no arguments to list them or call it with an example filename to get the path.
+
+readxl_example()
+```
+#>  [1] "clippy.xls"    "clippy.xlsx"   "datasets.xls"  "datasets.xlsx"
+#>  [5] "deaths.xls"    "deaths.xlsx"   "geometry.xls"  "geometry.xlsx"
+#>  [9] "type-me.xls"   "type-me.xlsx"
+readxl_example("clippy.xls")
+#> [1] "/Users/jenny/resources/R/library/readxl/extdata/clippy.xls"
+
+read_excel() reads both xls and xlsx files and detects the format from the extension.
+
+xlsx_example <- readxl_example("datasets.xlsx")
+read_excel(xlsx_example)
+#> # A tibble: 150 x 5
+#>   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+#>          <dbl>       <dbl>        <dbl>       <dbl> <chr>  
+#> 1         5.10        3.50         1.40       0.200 setosa 
+#> 2         4.90        3.00         1.40       0.200 setosa 
+#> 3         4.70        3.20         1.30       0.200 setosa 
+#> # ... with 147 more rows
+
+xls_example <- readxl_example("datasets.xls")
+read_excel(xls_example)
+#> # A tibble: 150 x 5
+#>   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+#>          <dbl>       <dbl>        <dbl>       <dbl> <chr>  
+#> 1         5.10        3.50         1.40       0.200 setosa 
+#> 2         4.90        3.00         1.40       0.200 setosa 
+#> 3         4.70        3.20         1.30       0.200 setosa 
+#> # ... with 147 more rows
+
+List the sheet names with excel_sheets().
+
+excel_sheets(xlsx_example)
+#> [1] "iris"     "mtcars"   "chickwts" "quakes"
+
+Specify a worksheet by name or number.
+
+read_excel(xlsx_example, sheet = "chickwts")
+#> # A tibble: 71 x 2
+#>   weight feed     
+#>    <dbl> <chr>    
+#> 1   179. horsebean
+#> 2   160. horsebean
+#> 3   136. horsebean
+#> # ... with 68 more rows
+read_excel(xls_example, sheet = 4)
+#> # A tibble: 1,000 x 5
+#>     lat  long depth   mag stations
+#>   <dbl> <dbl> <dbl> <dbl>    <dbl>
+#> 1 -20.4  182.  562.  4.80      41.
+#> 2 -20.6  181.  650.  4.20      15.
+#> 3 -26.0  184.   42.  5.40      43.
+#> # ... with 997 more rows
+
+There are various ways to control which cells are read. You can even specify the sheet here, if providing an Excel-style cell range.
+
+read_excel(xlsx_example, n_max = 3)
+#> # A tibble: 3 x 5
+#>   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+#>          <dbl>       <dbl>        <dbl>       <dbl> <chr>  
+#> 1         5.10        3.50         1.40       0.200 setosa 
+#> 2         4.90        3.00         1.40       0.200 setosa 
+#> 3         4.70        3.20         1.30       0.200 setosa
+read_excel(xlsx_example, range = "C1:E4")
+#> # A tibble: 3 x 3
+#>   Petal.Length Petal.Width Species
+#>          <dbl>       <dbl> <chr>  
+#> 1         1.40       0.200 setosa 
+#> 2         1.40       0.200 setosa 
+#> 3         1.30       0.200 setosa
+read_excel(xlsx_example, range = cell_rows(1:4))
+#> # A tibble: 3 x 5
+#>   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+#>          <dbl>       <dbl>        <dbl>       <dbl> <chr>  
+#> 1         5.10        3.50         1.40       0.200 setosa 
+#> 2         4.90        3.00         1.40       0.200 setosa 
+#> 3         4.70        3.20         1.30       0.200 setosa
+read_excel(xlsx_example, range = cell_cols("B:D"))
+#> # A tibble: 150 x 3
+#>   Sepal.Width Petal.Length Petal.Width
+#>         <dbl>        <dbl>       <dbl>
+#> 1        3.50         1.40       0.200
+#> 2        3.00         1.40       0.200
+#> 3        3.20         1.30       0.200
+#> # ... with 147 more rows
+read_excel(xlsx_example, range = "mtcars!B1:D5")
+#> # A tibble: 4 x 3
+#>     cyl  disp    hp
+#>   <dbl> <dbl> <dbl>
+#> 1    6.  160.  110.
+#> 2    6.  160.  110.
+#> 3    4.  108.   93.
+#> # ... with 1 more row
+
+If NAs are represented by something other than blank cells, set the na argument.
+
+read_excel(xlsx_example, na = "setosa")
+#> # A tibble: 150 x 5
+#>   Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+#>          <dbl>       <dbl>        <dbl>       <dbl> <chr>  
+#> 1         5.10        3.50         1.40       0.200 <NA>   
+#> 2         4.90        3.00         1.40       0.200 <NA>   
+#> 3         4.70        3.20         1.30       0.200 <NA>   
+#> # ... with 147 more rows
+```
+
+If you are new to the tidyverse conventions for data import, you may want to consult the data import chapter in R for Data Science. readxl will become increasingly consistent with other packages, such as readr.
+Reference:https://readxl.tidyverse.org/
+
+
+
+```{r}
+library(readxl)
+draft3 <- readxl_example("datasets.xlsx")  # Reads the first worksheet in the file
+read_excel(draft3)
+
+head(draft3)
+```
+
+
+
+
+# Reading Web Data
+
+The Internet gives you access to more data than you could ever hope to analyze. Data analysis often begins with getting data from the web and loading it into R. Websites that offer data for download usually let you download data as CSV, TSV or excel files.
+The easiest way to use web data in R, is to simply download data to your hard drive in CSV, TSV or an excel file format and then use the functions we discussed earlier to load the data into R. You can supply a url to read.csv() or read.table() to read data directly from the web, but doing so can be problematic since web data isn't always formatted nicely. It can be helpful to do a little data cleaning, such as deleting unnecessary titles, images or other oddities in excel or a text editor to prepare data for use in R. In addition, large data sets often come in compressed formats like .zip and need to be decompressed before loading them into R so they aren't always easy loaded directly from the web.
+Reading from the clipboard is another option for reading web data and other tabular data. To read in data from the clipboard, highlight the data you want to copy and use the appropriate copy function as if you were going to copy and paste the data. Next, use the read.csv() or read.table() function with the the first argument set to "clipboard":
+```{r}
+# Go to http://www.basketball-reference.com/leagues/NBA_2017_totals.html
+# click the CSV button to format data and then copy some data to the clipboard
+
+BB_reference_data <- read.csv("clipboard")       # Read data from the clipboard
+
+print ( head(BB_reference_data, 10) )            # Check the data
+```
+
+
+Data comes in all sorts of formats other than the friendly ones we've discussed thus far. R has functions and packages for working with data in other common data formats like SAS, SPSS and Stata files, json, xml, html and databases. We won't cover how to deal with all the different data sources you might encounter in this lesson, but rest assured that there is probably a way to work with your data in R if you do some digging. If you encounter a data source you don't know how to work with, a little bit of Googling will usually reveal how to convert it into a more familiar format or use an R package to deal with it directly.
+
+# Writing Data To CSV
+
+In the course of cleaning data, data analysis and predictive modeling, you'll generate new data. You can write data in an R data frame to CSV using the write.csv() function:
+```{r}
+write.csv(BB_reference_data,      # Name of variable assigned to the data       
+         "BB_data.csv",           # Name of the file to create to store the data
+          row.names = FALSE,)     # Whether to include row names in the file
+```
+
+
+Data is written to your current working directory. It's a good idea to save data after long, computationally expensive operations so that you don't lose progress or results.
+Now that we know the basics of reading and writing data, we are almost ready to start exploring data, but before diving in we will spend a couple lessons learning basic R programming constructs. 
+Reference:http://hamelg.blogspot.com

@@ -1,0 +1,231 @@
+---
+title: "Introduction to R: vectors"
+output:
+  pdf_document: default
+  html_notebook: default
+---
+Reference: http://hamelg.blogspot.com/
+This is an [R Markdown](http://rmarkdown.rstudio.com) Notebook. When you execute code within the notebook, the results appear beneath the code. 
+
+Try executing this chunk by clicking the *Run* button within the chunk or by placing your cursor inside it and pressing *Ctrl+Shift+Enter*. 
+
+```{r}
+plot(cars)
+```
+
+Add a new chunk by clicking the *Insert Chunk* button on the toolbar or by pressing *Ctrl+Alt+I*.
+
+When you save the notebook, an HTML file containing the code and output will be saved alongside it (click the *Preview* button or press *Ctrl+Shift+K* to preview the HTML file).
+
+The preview shows you a rendered HTML copy of the contents of the editor. Consequently, unlike *Knit*, *Preview* does not run any R code chunks. Instead, the output of the chunk when it was last run in the editor is displayed.
+
+# Vectors
+To create and store a vector with specific values, use the c() function and assign the result to a variable. c() takes a comma separated sequence of elements as input and combines them into a vector:
+
+```{r}
+ x <- c(1,2,3)  # Create a numeric vector and assign it to x 
+ 
+print(x)  # Print the value of x to the screen 
+ 
+y <- c("Life","Is","Study")  # Create a character vector 
+ 
+print(y)  # Print y to the screen 
+```
+You can also combine two vectors using c():
+
+```{r}
+ z <- c(x,y) # Combine vectors x and y 
+ 
+print(z) 
+
+```
+If you try to combine vectors of different types as shown above, R will automatically convert the vector into the type that fits best. In this case, the numbers were converted into their character equivalents.
+When you create a vector, each element in the vector is assigned an index based on its position in the vector. The first element is at index position 1, the second element is at index position 2 and so on. 
+ 
+*Note: unlike many other programming languages, indexes in R start at 1 instead of 0.
+
+When you print a vector to the screen, each line starts with a number in square brackets followed by vector values. The number in square brackets indicates the index of the next value listed on that line. For large vectors, this labeling can be  helpful. For instance, consider a vector consisting of 100 random numbers between 0 and 1:
+```{r}
+ random_data <- runif(100)  # Create a vector of 100 random numbers 
+ 
+print(random_data) # Print the vector 
+
+```
+You can access a specific value in a vector by typing the name of the vector and then wrapping the index associated with the value you want to access in square brackets:
+```{r}
+ random_data[7]  # Get the value at index 7 
+```
+
+Attempting to access an index that doesn't exist returns NA. NA denotes a missing value.
+```{r}
+ random_data[200] 
+```
+
+You can access ranges of values by placing a colon between the starting and ending indices of the range:
+```{r}
+subset1 <- random_data[7:14]  # Get values from index 7 to 14 
+ 
+print(subset1) 
+```
+You can even access a specific subset of values by wrapping a vector in the square brackets:
+```{r}
+subset2 <- random_data[c(1,10,100)] #Get the first, tenth and 100th values 
+ 
+print(subset2) 
+```
+
+A subset of a vector is just a shorter vector. In fact, singular values are technically vectors of length 1, so all of the values we've used up till now were vectors all along! You can check the length of a vector with the length() function:
+```{r}
+ length(10)  # A singular value is a vector of length 1 
+ 
+length(random_data) 
+```
+
+Here are a few other useful ways to index into vectors:
+```{r}
+# Adding a minus sign excludes a given index: 
+ 
+y <- c("Life","Is","Study") 
+y <- y[-2]            # Exclude index 2 
+print(y) 
+ 
+# A minus sign can also exclude a given range of indices: 
+ 
+random_data <- runif(50)                # Generate 50 random numbers 
+random_data_sub <- random_data[-(2:49)] # Exclude the range 2 through 49 
+print(random_data_sub) 
+```
+You can also index a vector with a logical vector of the same length. In this case, the subset is created from each index where the corresponding logical vector is TRUE. Indexing with a logical vector is a common way to filter a numeric or character vector for values that fulfill certain criteria:
+```{r}
+# Create a logical vector identifying values over 0.5 in random_data 
+ 
+logical_over_half <- (random_data > 0.5)
+print(logical_over_half) 
+```
+
+```{r}
+ # Use the logical vector to create a subset of the values over 0.5 
+over_half <- random_data[logical_over_half] 
+ 
+print(over_half) 
+```
+```{r}
+ # Use the logical vector and the not symbol (!) to get values under 0.5 
+ 
+under_half <- random_data[!logical_over_half] 
+ 
+print(under_half) 
+```
+```{r}
+ # You can perform logical indexing all in one step: 
+ 
+random_data[random_data > 0.5] 
+```
+
+```{r}
+ # You can also use more complicated logical expressions. # In this case we grab all values between 0.4 and 0.6: 
+ 
+random_data[(random_data < 0.6) & (random_data > 0.4)] 
+```
+
+Finally, you can use %in% to create a subset of elements that are contained within some other vector:
+```{r}
+my_vector <- c("a","b","c","d","a","a","f")
+
+my_vector[my_vector %in% c("a","c")]
+```
+## Vectorized Operations
+
+One of the biggest benefits of R is that it is built around performing operations on vectors. Many R functions and operations behave in a "vectorized" manner, meaning they act upon each element of a vector individually and return the result of each of the operations in a new vector. Vectorized operations simplify the process of performing the same calculations on related data. All the basic operators and functions we've learned so far that operate on single values work on vectors longer than length 1.
+```{r}
+example_vector <- c(1,2,3)
+
+# + adds to each value in the vector
+example_vector + 10
+
+# - performs subtraction on each value
+example_vector - 10
+```
+
+Other math operators like *, /, ^ and %% work the same way as do functions like round(), floor() and ceiling():
+```{r}
+example_vector2 <- c(1.6, 2.5, 3.5)
+
+round(example_vector2)
+      
+floor(example_vector2)
+```
+
+Vectorized operations make it easy to carry out vector transformations quickly without worrying about programming constructs like for and while loops. Vector operations that involve two or more vectors are typically executed in an element-wise fashion. For example, if you take two numeric vectors of the sample length and add them, the result is a new vector containing the sums of the values at each index:
+```{r}
+vector1 <- c(1,2,3,4)
+vector2 <- c(10,20,30,40)
+
+print( vector1+vector2 )
+```
+
+```{r}
+# Other math operations also work in this way:
+
+vector1*vector2  # Element-wise multiplication
+
+vector1/vector2  # Element-wise division
+
+vector1 %% vector2  # Element-wise modulus
+```
+```{r}
+# If you want a vector inner product, use %*%
+
+vector1 %*% vector2
+```
+*Note: An inner product is the sum of the element-wise multiplication of two vectors. It always returns a single value.
+Vectorized operations can also work on character vectors. Let's consider the function paste() which takes two or more objects as input and concatenates them into a character vector. If you pass paste() character vectors longer than length 1, it combines them in an element-wise fashion:
+```{r}
+x <- c("Life","Is","Study")
+y <- c("Blogging","Is","Fun")
+
+paste(x,y)
+```
+
+The data type conversion functions.
+```{r}
+x <- c(1,2,3)
+print(x)
+typeof(x)
+
+x <- as.character(x)
+print(x)
+typeof(x)
+```
+
+## Generating Vectors
+
+Creating vectors by hand with the c() function works fine for short vectors, but it becomes cumbersome quickly when you're working with longer vectors. R includes a variety of convenience functions to generate vectors.
+You can generate all whole numbers in a range using a colon:
+```{r}
+x <- 1:20 
+print(x)
+```
+You can also generate sequences using the seq() function. Seq takes the arguments from, to, and by which specify the starting point, stopping point and size of the sequence increment:
+```{r}
+y <- seq(from = 1, to = 20, by = 1)
+print(y)
+```
+```{r}
+z <- seq(0, 100, 10)   # You can omit the argument names
+print(z)
+```
+Use rep() to create a vector of the same value repeated a specified number of times:
+```{r}
+r <- rep(x=1, times=20)
+print(r)
+```
+
+As we saw earlier, you can use the runif() function to draw random values from specified range:
+```{r}
+x <- runif(n=20, min=0, max=100)
+print(x)
+```
+
+The function runif() draws numbers from a uniform distribution, so all values within the range are equally likely. R also has functions for drawing random numbers from other types of distributions, such as rnorm() for the normal distribution, rexp() for the exponential distribution and rbinom() for the binomial distribution. We won't go into these any further right now, but suffice it to say R is very useful if you have to deal with probability distributions.
+You can accomplish a surprising amount in R using only vectors and vector commands in the console, but real-world data is usually structured in 2 dimensional tables. 
