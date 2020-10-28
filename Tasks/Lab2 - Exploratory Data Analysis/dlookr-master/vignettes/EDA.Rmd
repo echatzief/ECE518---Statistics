@@ -367,6 +367,8 @@ To perform EDA based on `target variable`, you need to create a`target_by class`
 
 The following is an example of specifying US as target variable in carseats data.frame.:
 
+categ \<- target\_by(carseats, US)
+
 ```{r target_by}
 categ <- target_by(carseats, US)
 ```
