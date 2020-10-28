@@ -24,7 +24,7 @@ library(dplyr)
 library(ggplot2)
 ```
 
-## Import automobile data set 
+## Import automobile data set
 
 ```{r}
 df<- read.csv(file ='Automobile_data.csv')
@@ -114,7 +114,7 @@ normality(df, X3:rwd)
 normality(df, -(X.:rwd))
 ```
 
-You can use dplyr to sort non-normal distribution variables by p\_value :
+You can use dplyr to sort non-normal distribution variables by p_value :
 
 ```{r}
 
@@ -240,6 +240,10 @@ The following is an example of specifying US as target variable in automobile da
 ## EDA when target variable is categorical variable
 
 ```{r}
+library(partykit)
+library(dlookr)
+library(dplyr)
+library(ggplot2)
 df<- read.csv(file ='Automobile_data.csv')
 df = data.frame(df)
 categ <- target_by(df, alfa.romero)
@@ -248,15 +252,75 @@ categ <- target_by(df, alfa.romero)
 ## Cases where predictors are numeric variable
 
 ```{r}
-#install.packages("mice")
-#library(mice)
 # If the variable of interest is a numarical variable
-relate(categ, X88.6)
+cat_num <- relate(categ, X3)
+cat_num
+summary(cat_num())
 ```
 
-## NA KANW THN RELATE
+### The `relate class` object created with`relate()` visualizes the relationship between the target variable and the predictor with `plot()`. 
 
-## Creating an EDA report using `eda_report()`
+```{r}
+plot(cat_num)
+```
+
+#### Cases where predictors are categorical variable
+
+```{r}
+
+cat_cat <- relate(categ, two)
+cat_cat
+summary(cat_cat)
+```
+
+`plot()` visualizes the relationship between the target variable and the predictor. The relationship between `US` and `ShelveLoc` is represented by a `mosaics plot`.
+
+```{r}
+plot(cat_cat)
+```
+
+## EDA when target variable is numerical variable
+
+```{r}
+# If the variable of interest is a numarical variable
+num <- target_by(df, X3)
+```
+
+## Cases where predictors are numeric variable
+
+```{r}
+# If the variable of interest is a numarical variable
+num_num <- relate(num, X88.6)
+num_num
+summary(num_num)
+```
+
+```{r}
+plot(num_num)
+```
+
+Next, draw a hexabin plot with `plot()` not a scatter plot, specifying 350 for the hex_thres argument. This is because the number of observations is 400.
+
+```{r}
+plot(num_num, hex_thres = 350)
+```
+
+## Cases where predictors are categorical variable
+
+```{r}
+# If the variable of interest is a categorical variable
+num_cat <- relate(num, convertible)
+num_cat
+summary(num_cat)
+```
+
+`plot()` visualizes the relationship between the target variable and the predictor.
+
+```{r}
+plot(num_cat)
+```
+
+### Creating an EDA report using `eda_report()`
 
 ```{r,eval=FALSE}
 library(partykit)
@@ -309,7 +373,7 @@ copy_to(con_sqlite, df, name = "TB_AUTOMOBILE", overwrite = TRUE)
 
 ### Calculating descriptive statistics of numerical column of table in the DBMS
 
-Use `dplyr::tbl()` to create a tbl\_dbi object, then use it as a data frame object. That is, the data argument of all EDA function is specified as tbl\_dbi object instead of data frame object.
+Use `dplyr::tbl()` to create a tbl_dbi object, then use it as a data frame object. That is, the data argument of all EDA function is specified as tbl_dbi object instead of data frame object.
 
 ```{r}
 # Positive values select variables
