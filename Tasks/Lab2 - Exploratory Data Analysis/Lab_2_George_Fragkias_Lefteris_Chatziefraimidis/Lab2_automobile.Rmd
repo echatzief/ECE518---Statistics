@@ -114,7 +114,7 @@ normality(df, X3:rwd)
 normality(df, -(X.:rwd))
 ```
 
-You can use dplyr to sort non-normal distribution variables by p_value :
+You can use dplyr to sort non-normal distribution variables by p\_value :
 
 ```{r}
 
@@ -258,7 +258,7 @@ cat_num
 summary(cat_num())
 ```
 
-### The `relate class` object created with`relate()` visualizes the relationship between the target variable and the predictor with `plot()`. 
+### The `relate class` object created with`relate()` visualizes the relationship between the target variable and the predictor with `plot()`.
 
 ```{r}
 plot(cat_num)
@@ -299,7 +299,7 @@ summary(num_num)
 plot(num_num)
 ```
 
-Next, draw a hexabin plot with `plot()` not a scatter plot, specifying 350 for the hex_thres argument. This is because the number of observations is 400.
+Next, draw a hexabin plot with `plot()` not a scatter plot, specifying 350 for the hex\_thres argument. This is because the number of observations is 400.
 
 ```{r}
 plot(num_num, hex_thres = 350)
@@ -322,6 +322,12 @@ plot(num_cat)
 
 ### Creating an EDA report using `eda_report()`
 
+```{r}
+df = data.frame(df)
+df %>%
+  eda_report()
+```
+
 ```{r,eval=FALSE}
 library(partykit)
 library(dlookr)
@@ -336,7 +342,7 @@ The following generates an HTML-formatted report named `EDA.html`.
 
 ```{r, eval=FALSE}
 df %>%
-  eda_report(target = X88.6, output_format = "html",output_dir="./",browse=FALSE)
+  eda_report(target = X88.6, output_format = "html",output_dir="./",browse=TRUE)
 ```
 
 ## EDA report contents
@@ -347,7 +353,71 @@ df %>%
 knitr::include_graphics('img/eda_title_pdf.png')
 ```
 
-NA KANW TA IMAGES
+-   The report's argenda is shown in the following figure.
+
+    ```{r}
+    knitr::include_graphics('img/eda_agenda_pdf.png')
+    ```
+
+<!-- -->
+
+-   Much information is represented in tables in the report. An example of the table is shown in the following figure.
+
+    ```{r}
+    knitr::include_graphics('img/eda_intro_pdf.png')
+    ```
+
+<!-- -->
+
+-   In the EDA report, the normality test content includes visualization results. The result is shown in the following figure.
+
+    ```{r}
+    knitr::include_graphics('img/eda_normality_pdf.png')
+    ```
+
+<!-- -->
+
+-   Correlation information in EDA reports includes visualization results. The result is shown in the following figure.
+
+    ```{r}
+    knitr::include_graphics('img/eda_correlation_pdf.png')
+    ```
+
+<!-- -->
+
+-   In EDA reports, information on linear relationships includes tables and visualization results. The result is shown in the following figure.
+
+```{r}
+knitr::include_graphics('img/eda_lm_pdf.png')
+```
+
+-   In EDA reports, ANOVA information includes tables and visualization results. The result is shown in the following figure.
+
+    ```{r}
+    knitr::include_graphics('img/eda_anova_pdf.png')
+    ```
+
+## Contents of html file
+
+-   The title and contents of the report are shown in the following figure.
+
+```{r}
+knitr::include_graphics('img/eda_agenda_html.png')
+```
+
+-   Much information is represented in tables in the report. An example of a table in an html file is shown in the following figure.
+
+    ```{r}
+    knitr::include_graphics('img/eda_table_html.png')
+    ```
+
+<!-- -->
+
+-   In EDA reports, normality test information includes visualization results. The result of the html file is shown in the following figure.
+
+    ```{r}
+    knitr::include_graphics('img/eda_normality_html.png')
+    ```
 
 ## Exploratory data analysis for tables in DBMS
 
@@ -373,7 +443,7 @@ copy_to(con_sqlite, df, name = "TB_AUTOMOBILE", overwrite = TRUE)
 
 ### Calculating descriptive statistics of numerical column of table in the DBMS
 
-Use `dplyr::tbl()` to create a tbl_dbi object, then use it as a data frame object. That is, the data argument of all EDA function is specified as tbl_dbi object instead of data frame object.
+Use `dplyr::tbl()` to create a tbl\_dbi object, then use it as a data frame object. That is, the data argument of all EDA function is specified as tbl\_dbi object instead of data frame object.
 
 ```{r}
 # Positive values select variables
