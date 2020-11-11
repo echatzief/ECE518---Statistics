@@ -1,0 +1,322 @@
+---
+title: '**Final Project Introduction Statistics Fall 2020**'
+author: "Elias Houstis"
+output:
+  pdf_document:
+    toc: yes
+    toc_depth: '3'
+  html_document:
+    toc: yes
+    toc_depth: 3
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+# Final Project Fall 2020
+
+## dataset: NHANES
+
+The data we’re going to work with comes from the National Health and Nutrition Examination Survey (NHANES) program at the CDC. You can read a lot more about NHANES on the CDC’s website or Wikipedia. NHANES is a research program designed to assess the health and nutritional status of adults and children in the United States. The survey is one of the only to combine both survey questions and physical examinations. It began in the 1960s and since 1999 examines a nationally representative sample of about 5,000 people each year. The NHANES interview includes demographic, socioeconomic, dietary, and health-related questions. The physical exam includes medical, dental, and physiological measurements, as well as several standard laboratory tests. NHANES is used to determine the prevalence of major diseases and risk factors for those diseases. NHANES data are also the basis for national standards for measurements like height, weight, and blood pressure. Data from this survey is used in epidemiology studies and health sciences research, which help develop public health policy, direct and design health programs and services, and expand the health knowledge for the Nation.
+
+We are using a small slice of this data. We’re only using a handful of variables from the 2011-2012 survey years on about 5,000 individuals. The CDC uses a sampling strategy to purposefully oversample certain subpopulations like racial minorities. Naive analysis of the original NHANES data can lead to mistaken conclusions because the percentages of people from each racial group in the data are different from general population. The 5,000 individuals here are resampled from the larger NHANES study population to undo these oversampling effects, so you can treat this as if it were a simple random sample from the American population.
+# PartI - Descriptive Statistics
+
+### Load the data
+```{r}
+library(dplyr)
+library(NHANES)
+nh <- read.csv("nhanes.csv")
+nh <- tbl_df(nh)
+#display the variables of nhanes dataset
+names(nh)
+
+```
+## Alternative views of the data
+```{r}
+View(nh)
+```
+Recall several built-in functions that are useful for working with data frames.
+
+* Content:
+  - head(): shows the first few rows
+  - tail(): shows the last few rows
+* Size:
+  - dim(): returns a 2-element vector with the number of rows in the first element, and the number of columns as the second element (the dimensions of the object)
+  - nrow(): returns the number of rows
+  - ncol(): returns the number of columns
+* Summary:
+  - colnames() (or just names()): returns the column names
+  - glimpse() (from dplyr): Returns a glimpse of your data, telling you the structure of the dataset and information about the class, length and content of each column
+
+## insert table of variables  description in nhnanes dataset
+
+```{r}
+library(knitr)
+nhanes.dd <- read.csv("nhanes_dd.csv")
+kable(nhanes.dd)
+```
+
+```{r}
+# run the following commands
+head(nh)
+tail(nh)
+dim(nh)
+names(nh)
+glimpse(nh)
+```
+
+
+## Descriptive statistics 
+
+We can access individual variables within a data frame using the $ operator, e.g., mydataframe$specificVariable. Let’s print out all the Race values in the data. Let’s then see what are the unique values of each. Then let’s calculate the mean, median, and range of the Age variable.
+
+If you run the `summary()` function  on a data frame, you get some very basic summary statistics on each variable in the data.
+
+**Exercise 1**
+a) display race values
+b) get unique values of Race
+c) length of Race
+d) Read the functions that dplyr (https://dplyr.tidyverse.org/) supports
+e) do the d) using dplyr way
+
+## Missing data
+
+Let’s try taking the mean of a `income` variable.
+
+```{r}
+mean(nh$Income)
+```
+What happened there? NA indicates missing data. Take a look at the Income variable.
+```{r}
+glimpse(nh$Income)
+```
+Notice that there are lots of missing values for Income. Trying to get the mean a bunch of observations with some missing data returns a missing value by default. This is almost universally the case with all summary statistics – a single NA will cause the summary to return NA. Now look at the help for ?mean. Notice the na.rm argument. This is a logical (i.e., TRUE or FALSE) value indicating whether or not missing values should be removed prior to computing the mean. By default, it’s set to FALSE. Now try it again.
+```{r}
+mean(nh$Income, na.rm=TRUE)
+```
+The `is.na()` function tells you if a value is missing. Get the `sum(`)` of that vector, which adds up all the TRUEs to tell you how many of the values are missing.
+
+```{r}
+#is.na(nh$Income))
+sum(is.na(nh$Income))
+```
+##R is.na Function Example (remove, replace, count, if else, is not NA)
+
+Before we can start, let’s create some example data in R (or R Studio).
+
+```{r}
+set.seed(11991)                              # Set seed
+N <- 1000                                    # Sample size
+ 
+x_num <- round(rnorm(N, 0, 5))               # Numeric
+x_fac <- as.factor(round(runif(N, 0, 3)))    # Factor
+x_cha <- sample(letters, N, replace = TRUE)  # Character
+ 
+x_num[rbinom(N, 1, 0.2) == 1] <- NA          # 20% missings
+x_fac[rbinom(N, 1, 0.3) == 1] <- NA          # 30% missings
+x_cha[rbinom(N, 1, 0.05) == 1] <- NA         # 5% missings
+ 
+data <- data.frame(x_num, x_fac, x_cha,      # Create data frame
+                   stringsAsFactors = FALSE)
+head(data)                                   # First rows of data
+```
+Our data consists of three columns, each of them with a different class: numeric, factor, and character. This is how the first six lines of our data look like:
+
+
+Let’s apply the is.na function to our **whole data set**:
+```{r}
+head(is.na(data))
+```
+We are also able to check whether there is or is not an NA value in a column or vector:
+```{r}
+head(is.na(data$x_num))  # Works for numeric ...
+head(is.na(data$x_fac))  # ... factor ...
+head(is.na(data$x_cha))  # ... and character
+ 
+head(!is.na(data$x_num)) # The explanation mark still works 
+head(!is.na(data$x_fac))
+head(!is.na(data$x_cha))
+```
+That’s nice, but the real power of `is.na` becomes visible in combination with other functions — And that’s exactly what I’m going to show you now.
+
+## is.na in Combination with Other R Functions
+### Remove NAs of Vector or Column
+```{r}
+length(data$x_num)
+is.na_remove <- data$x_num[!is.na(data$x_num)]
+
+length(is.na_remove)
+```
+### Replace NAs with Other Values (i.e. mean)
+
+```{r}
+is.na_replace_mean <- data$x_num                            # Duplicate first column
+x_num_mean <- mean(is.na_replace_mean, na.rm = TRUE)        # Calculate mean
+is.na_replace_mean[is.na(is.na_replace_mean)] <- x_num_mean # Replace by mean
+```
+
+In case of characters or factors, it is also possible in R to set NA to blank:
+
+```{r}
+is.na_blank_cha <- data$x_cha                               # Duplicate character column
+is.na_blank_cha[is.na(is.na_blank_cha)] <- ""               # Class character to blank
+ 
+is.na_blank_fac <- data$x_fac                               # Duplicate factor column
+is.na_blank_fac <- as.character(is.na_blank_fac)            # Convert temporarily to character
+is.na_blank_fac[is.na(is.na_blank_fac)] <- ""               # Class character to blank
+is.na_blank_fac <- as.factor(is.na_blank_fac)               # Recode back to factor
+```
+
+### Count NAs via sum & colSums
+
+Combined with the R function sum, we can count the amount of NAs in our columns. According to our previous data generation, it should be approximately 20% in x_num, 30% in x_fac, and 5% in x_cha.
+```{r}
+sum(is.na(data$x_num)) # 213 missings in the first column
+sum(is.na(data$x_fac)) # 322 missings in the second column
+sum(is.na(data$x_cha)) # 47 missings in the third column
+
+```
+If we want to count NAs in multiple columns at the same time, we can use the function colSums:
+```{r}
+colSums(is.na(data))
+```
+
+ 
+### Detect if there are any NAs
+
+We can also test, if there is at least 1 missing value in a column of our data. As we already know, it is TRUE that our columns have NAs.
+```{r}
+any(is.na(data$x_num))
+```
+
+
+
+
+ 
+### Locate NAs via which
+
+In combination with the which function, is.na can be used to identify the positioning of NAs:
+```{r}
+head(which(is.na(data$x_num)))
+```
+
+
+
+
+Our first column has missing values at the positions 4, 5, 14, 17, 22, 23 and so forth.
+
+ 
+### if & ifelse
+
+Missing values have to be considered in our programming routines, e.g. within the if statement or within for loops.
+
+In the following example, I’m printing “Damn, it’s NA” to the R Studio console whenever a missing occurs; and “Wow, that’s awesome” in case of an observed value.
+```{r}
+for(i in 1:10) {
+  if(is.na(data$x_num[i])) {
+    print("Damn, it's NA")
+  }
+  else {
+    print("Wow, that's awesome")
+  }
+}
+```
+
+
+
+
+Note: Within the if statement we use is na instead of equal to — the approach we would usually use in case of observed values (e.g. if(x[i] == 5)).
+
+Even easier to apply: the ifelse function.
+```{r}
+head(ifelse(is.na(data$x_num), "Damn, it's NA", "Wow, that's awesome"))
+```
+There are a few handy functions in the `Tmisc` package for summarizing missingness in a data frame. You can graphically display missingness in a data frame as holes on a black canvas with `gg_na()` (use ggplot2 to plot NA values), or show a table of all the variables and the missingness level with propmiss().
+
+```{r}
+# Install if you don't have it already
+# install.packages("Tmisc")
+
+# Load Tmisc
+library(Tmisc)
+gg_na(data)
+```
+```{r}
+propmiss(data)
+```
+
+
+**Exercise 2 **
+Apply the above functions to other column of the dataset
+
+# Part II: Explatory Data Analysis (EDA)
+
+It’s always worth examining your data visually before you start any statistical analysis or hypothesis testing.  The big ones are histograms and scatterplots.
+
+## Histograms
+
+**Exercise 3**
+
+a) Make some histograms with ggplot2 of 2 variables. 
+b) Look at BMI and indicate whether there outliers. 
+c) Look at weight. What their distribution looks like? 
+d) Check the age distribution. Are there kids in this data? Explain
+
+```{r}
+#your code
+library(ggplot2)
+
+```
+
+## Scatterplots
+Let’s look at how a few different variables relate to each other. E.g., height and weight:
+
+```{r}
+ggplot(nh, aes(Height, Weight, col=Gender)) + geom_point()
+```
+Let’s filter out all the kids, draw trend lines using a linear model:
+```{r}
+nh %>% 
+  filter(Age>=18) %>% 
+  ggplot(aes(Height, Weight, col=Gender)) + 
+    geom_point() + 
+    geom_smooth(method="lm")
+```
+**Exercise 4**
+1. What’s the mean 60-second pulse rate for all participants in the data?
+
+2. What’s the range of values for diastolic blood pressure in all participants? (Hint: see help for min(), max(), and range() functions, e.g., enter ?range without the parentheses to get help).
+
+3. What are the median, lower, and upper quartiles for the age of all participants? (Hint: see help for median, or better yet, quantile).
+
+4. What’s the variance and standard deviation for income among all participants?
+
+# Part III: Point Estimates and Confidence Intervals
+
+## Parameter Estimation
+## Confidence Intervals
+## Exercise set 2
+ 
+# Part IV: Hypothesis Testing Continuous Variables
+
+## Hypothesis testing
+## Normality assumptions
+## T-tests
+## Wilcoxon test
+## Linear models
+## ANOVA
+## Linear regression
+## Multiple regression
+## Interpreting model summaries
+## Exercise set 3
+
+# Part V: Discrete variables
+## Contingency tables
+## Logistic regression
+## Interpreting model summaries
+## Exercise set 4
+
+
+
